@@ -60,31 +60,7 @@ fn solve_part_2(vec : &Vec<Depth>) {
             C = cur_depth;
         }
     }
-    // let mut num_correct_passwords = 0;
-    // for password in vec {
-    //     let mut idx = 1;
-    //     let mut found_once : bool = false;
-    //     for c in password.password.chars() {
-    //         if c == password.limited_char {
-    //             if idx == password.lower_limit {
-    //                 found_once = true;
-    //             }
-    //             else if idx == password.upper_limit {
-    //                 if found_once == false {
-    //                     found_once = true;
-    //                 }
-    //                 else {
-    //                     found_once = false;
-    //                 }
-    //                 break;
-    //             }
-    //         }
-    //         idx += 1;
-    //     }
-    //     if found_once == true {
-    //         num_correct_passwords += 1;
-    //     }
-    // }
+ 
     println!("Found {} increasing value pairs.", num_increases);
 }
 
