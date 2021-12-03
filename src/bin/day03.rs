@@ -2,6 +2,7 @@ use std::vec::Vec;
 use aoc21::load_data;
 
 
+#[derive(Clone)]
 struct BinValue {
     value: String,
 }
@@ -14,7 +15,7 @@ impl BinValue {
     }
 }
 
-fn solve_part_1(vec : &Vec<BinValue>) {
+fn count_occurences_of_bits(vec : &Vec<BinValue>) -> (Vec<usize>, Vec<usize>) {
     let num_digits = vec[0].value.len();
     let mut ones  = vec![0; num_digits];
     let mut zeros = vec![0; num_digits];
@@ -30,6 +31,12 @@ fn solve_part_1(vec : &Vec<BinValue>) {
             }
         }
     }
+    (ones, zeros)
+}
+
+fn solve_part_1(vec : &Vec<BinValue>) {
+    let num_digits = vec[0].value.len();
+    let (ones, zeros) = count_occurences_of_bits(vec);
     println!("ones : {:?}", ones);
     println!("zeros: {:?}", zeros);
 
@@ -51,22 +58,63 @@ fn solve_part_1(vec : &Vec<BinValue>) {
         gamma * epsilon);
 }
 
-fn solve_part_2(_vec : &Vec<BinValue>) {
-    // let mut aim : i32 = 0;
-    // let mut postition : i32 = 0;
-    // let mut depth : i32 = 0;
-    // for c in vec {
-    //     match c.command.as_str() {
-    //         "forward" => { postition += c.amount; depth += aim * c.amount; },
-    //         "down" => aim += c.amount,
-    //         "up" => aim -= c.amount,
-    //         &_ => panic!("Reached unreachable code")
-    //     }
-    // }
-    // println!("Horizontal postition {}, Depth {}, Product {}",
-    //     postition,
-    //     depth,
-    //     postition * depth);
+fn my_filter(value: &String, bit_pos: usize, more_ones: bool) -> bool {
+    let character = value.chars().nth(bit_pos).unwrap();
+    let matches : bool = (more_ones && character == '1') || (!more_ones && character == '0');
+    println!("value: {}, bit_pos: {}, more_ones: {}, match: {}", value, bit_pos, more_ones, matches);
+    matches
+}
+
+fn solve_part_2(vec : &Vec<BinValue>) {
+    let mut o2 = 0;
+    let mut co2 = 0;
+    {
+        let mut bit_pos = 0;
+        let mut found = vec.len();
+        let mut from_vec = vec.clone();
+        let mut to_vec : Vec<BinValue> = Vec::new();
+        while found > 1 {
+            let (ones, zeros) = count_occurences_of_bits(&from_vec);
+            println!("ones : {:?}", ones);
+            println!("zeros: {:?}", zeros);
+
+            for bin_value in from_vec {
+                if my_filter(&bin_value.value, bit_pos, ones[bit_pos] >= zeros[bit_pos]) {
+                    to_vec.push(BinValue {value: bin_value.value});
+                }
+            }
+            found = to_vec.len();
+            from_vec = to_vec.clone();
+            to_vec.clear();
+            bit_pos += 1;
+        }
+
+        o2 = isize::from_str_radix(from_vec[0].value.as_str(), 2).unwrap();
+    }
+    {
+        let mut bit_pos = 0;
+        let mut found = vec.len();
+        let mut from_vec = vec.clone();
+        let mut to_vec : Vec<BinValue> = Vec::new();
+        while found > 1 {
+            let (ones, zeros) = count_occurences_of_bits(&from_vec);
+            println!("ones : {:?}", ones);
+            println!("zeros: {:?}", zeros);
+
+            for bin_value in from_vec {
+                if my_filter(&bin_value.value, bit_pos, ones[bit_pos] < zeros[bit_pos]) {
+                    to_vec.push(BinValue {value: bin_value.value});
+                }
+            }
+            found = to_vec.len();
+            from_vec = to_vec.clone();
+            to_vec.clear();
+            bit_pos += 1;
+        }
+
+        co2 = isize::from_str_radix(from_vec[0].value.as_str(), 2).unwrap();
+    }
+    println!("o2: {}, co2: {}, product: {}", o2, co2, o2*co2);
 }
 
 fn main() {
