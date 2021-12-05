@@ -1,9 +1,83 @@
 use std::vec::Vec;
 use aoc21::load_data;
 
+#[derive(Copy, Clone)]
+struct Point {
+    x: usize,
+    y: usize
+}
+
+#[derive(Copy, Clone)]
 struct Line {
-    start: (usize, usize),
-    end: (usize, usize)
+    start: Point,
+    end: Point,
+    cur: Point,
+    //next: Point,
+}
+
+impl Iterator for Line {
+    // We can refer to this type using Self::Item
+    type Item = Point;
+    
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.start.x == self.end.x {
+            if self.start.y <= self.end.y && self.cur.y <= self.end.y {
+                let cur = self.cur;
+                self.cur.y += 1;
+                Some(cur)
+            }
+            else if self.start.y > self.end.y && self.cur.y >= self.end.y {
+                let cur = self.cur;
+                self.cur.y -= 1;
+                Some(cur) 
+            }
+            else {
+                None
+            }
+        }
+        else if self.start.y == self.end.y {
+            if self.start.x < self.end.x && self.cur.x <= self.end.x {
+                let cur = self.cur;
+                self.cur.x += 1;
+                Some(cur)
+            }
+            else if self.start.x > self.end.x && self.cur.x >= self.end.x {
+                let cur = self.cur;
+                self.cur.x -= 1;
+                Some(cur) 
+            }
+            else {
+                None
+            }
+        }
+        else {
+            if self.start.x < self.end.x && self.cur.x <= self.end.x {
+                let cur = self.cur;
+                self.cur.x += 1;
+                if self.start.y < self.end.y {
+                    self.cur.y += 1;
+                }
+                else {
+                    self.cur.y -= 1;
+                }
+                Some(cur)
+            }
+            else if self.start.x > self.end.x && self.cur.x >= self.end.x {
+                let cur = self.cur;
+                self.cur.x -= 1;
+                if self.start.y < self.end.y {
+                    self.cur.y += 1;
+                }
+                else {
+                    self.cur.y -= 1;
+                }
+                Some(cur)
+            }
+            else {
+                None
+            }
+        }
+    }
 }
 
 impl Line {
@@ -11,92 +85,42 @@ impl Line {
         let mut points = s.split(" -> ");
         let mut start = points.next().unwrap().split(",");
         let mut end = points.next().unwrap().split(",");
+        let start_point = Point{x: start.next().unwrap().parse().unwrap(), y: start.next().unwrap().parse().unwrap() };
+        let end_point = Point {x: end.next().unwrap().parse().unwrap(), y: end.next().unwrap().parse().unwrap() };
         Line {
-            start: (start.next().unwrap().parse().unwrap(), start.next().unwrap().parse().unwrap()),
-            end:   (end.next().unwrap().parse().unwrap(), end.next().unwrap().parse().unwrap()),
+            start: start_point,
+            end:   end_point,
+            cur:   start_point
         }
     }
 }
 
-fn solve_part_1(vec : &Vec<Line>) {
+fn solve_part_1(vec : Vec<Line>) {
     let mut field : Vec<Vec<usize>> = vec![vec![0; 1000]; 1000];
     let mut num_fields_greater_one = 0;
-    for line in vec.into_iter().filter(|l| l.start.0 == l.end.0 || l.start.1 == l.end.1) {
-        //println!("({},{}) -> ({},{})",
-        //    line.start.0, line.start.1, line.end.0, line.end.1);
-        if line.start.0 == line.end.0 {
-            let (start_y, end_y) = if line.start.1 > line.end.1 { (line.end.1, line.start.1) } else { (line.start.1, line.end.1) };
-            for y in start_y..end_y+1 {
-                if field[line.start.0][y] == 1 {
-                    num_fields_greater_one += 1;
-                }
-                field[line.start.0][y] += 1;
-            }
-        }
-        else if line.start.1 == line.end.1 {
-            let (start_x, end_x) = if line.start.0 > line.end.0 { (line.end.0, line.start.0) } else { (line.start.0, line.end.0) };
-            for x in start_x..end_x+1 {
-                if field[x][line.start.1] == 1 {
-                    num_fields_greater_one += 1;
-                }
-                field[x][line.start.1] += 1;
-            }
+    for line in vec.into_iter().filter(|l| l.start.x == l.end.x || l.start.y == l.end.y) {
+        for point in line {
+            field[point.x][point.y] += 1;
         }
     }
-    // for y in 0..10 {
-    //     for x in 0..10 {
-    //         print!("{}", field[x][y]);
-    //     }
-    //     print!("\n");
-    // }
-    // println!("");
+    for row in field {
+        let count = row.iter().filter(|&point| point > &1).count();
+        num_fields_greater_one += count;
+    }
     println!("{}", num_fields_greater_one);
 }
 
-fn solve_part_2(vec : &Vec<Line>) {
+fn solve_part_2(vec : Vec<Line>) {
     let mut field : Vec<Vec<usize>> = vec![vec![0; 1000]; 1000];
     let mut num_fields_greater_one = 0;
     for line in vec {
-        //println!("({},{}) -> ({},{})",
-        //    line.start.0, line.start.1, line.end.0, line.end.1);
-        if line.start.0 == line.end.0 && line.start.1 != line.end.1 {
-            let (start_y, end_y) = if line.start.1 > line.end.1 { (line.end.1, line.start.1) } else { (line.start.1, line.end.1) };
-            for y in start_y..end_y+1 {
-                if field[line.start.0][y] == 1 {
-                    num_fields_greater_one += 1;
-                }
-                field[line.start.0][y] += 1;
-            }
+        for point in line.into_iter() {
+            field[point.x][point.y] += 1;
         }
-        else if line.start.1 == line.end.1 && line.start.0 != line.end.0 {
-            let (start_x, end_x) = if line.start.0 > line.end.0 { (line.end.0, line.start.0) } else { (line.start.0, line.end.0) };
-            for x in start_x..end_x+1 {
-                if field[x][line.start.1] == 1 {
-                    num_fields_greater_one += 1;
-                }
-                field[x][line.start.1] += 1;
-            }
-        }
-        else {//if (line.start.1-line.end.1).abs() == (line.start.0-line.end.0).abs() {
-            let pos_y = line.start.1 < line.end.1;
-            let pos_x = line.start.0 < line.end.0;
-            let mut x = line.start.0;
-            let mut y = line.start.1;
-            while x != line.end.0 && y != line.end.1 {
-                if field[x][y] == 1 {
-                    num_fields_greater_one += 1;
-                }
-                field[x][y] += 1;
-                x = if pos_x { x+1 } else { x-1 };
-                y = if pos_y { y+1 } else { y-1 };
-            }
-            if x == line.end.0 && y == line.end.1 {
-                if field[x][y] == 1 {
-                    num_fields_greater_one += 1;
-                }
-                field[x][y] += 1;
-            }
-        }
+    }
+    for row in field {
+        let count = row.iter().filter(|&point| point > &1).count();
+        num_fields_greater_one += count;
     }
     println!("{}", num_fields_greater_one);
 }
@@ -105,6 +129,6 @@ fn main() {
     let filename = "data/day05/input.txt";
 
     let vec = load_data(filename, Line::new);
-    solve_part_1(&vec);
-    solve_part_2(&vec);
+    solve_part_1(vec.clone());
+    solve_part_2(vec.clone());
 }
