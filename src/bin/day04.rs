@@ -99,21 +99,46 @@ fn solve_part_1(numbers: &String, mut boards: Vec<Board>) {
             board.mark_number(&number);
             //println!("{}", board);
             if board.has_complete_row_or_col() {
-                let sum_of_marked = board.get_sum_of_unmarked_numbers();
+                let sum_of_unmarked = board.get_sum_of_unmarked_numbers();
                 let last_number : usize = number.parse().unwrap();
                 println!("sum: {}, last: {}, product: {}",
-                    sum_of_marked,
+                    sum_of_unmarked,
                     last_number,
-                    sum_of_marked * last_number);
+                    sum_of_unmarked * last_number);
                 return;
             }
         }
     }
 }
 
+fn solve_part_2(numbers: &String, mut boards: Vec<Board>) {
+    let mut last_completed_board = 0;
+    let mut number_that_completed_last : usize = 0;
+    for number in numbers.split(",") {
+        //println!("{}", number);
+        for idx in 0..boards.len() {
+            let mut board = &mut boards[idx];
+            if !board.has_complete_row_or_col() {
+                board.mark_number(&number);
+                //println!("{}", board);
+                if board.has_complete_row_or_col() {
+                    last_completed_board = idx;
+                    number_that_completed_last = number.parse().unwrap();
+                }
+            }
+        }
+    }
+    let sum_of_unmarked = boards[last_completed_board].get_sum_of_unmarked_numbers();
+    let last_number : usize = number_that_completed_last;
+    println!("sum: {}, last: {}, product: {}",
+        sum_of_unmarked,
+        last_number,
+        sum_of_unmarked * last_number);
+}
+
 fn main() {
     let filename = String::from("data/day04/input.txt");
     let (numbers, vec) = load_bingo(&filename);
     solve_part_1(&numbers, vec.clone());
-    // solve_part_2(&vec);
+    solve_part_2(&numbers, vec.clone());
 }
