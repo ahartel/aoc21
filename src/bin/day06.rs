@@ -7,7 +7,7 @@ fn read_data(v : &mut [usize; 9]) {
     }
 }
 
-fn solve(v : &mut [usize; 9], days: usize) {
+fn solve(v : &mut [usize; 9], days: usize) -> usize {
     for day in 0..days {
         let mut temp_v : [usize; 9] = [0; 9];
         //println!("{:?}", v);
@@ -22,17 +22,31 @@ fn solve(v : &mut [usize; 9], days: usize) {
         }
         *v = temp_v;
     }
-    println!("{}", v.iter().sum::<usize>());
+    let solution = v.iter().sum::<usize>();
+    println!("{}", solution);
+    solution
 }
 
 fn print_type_of<T>(_: &T) {
     println!("{}", std::any::type_name::<T>())
 }
 
-fn main() {
+fn do_solve() -> (usize, usize) {
     let mut v : [usize; 9] = [0; 9];
     //print_type_of(&v);
     read_data(&mut v);
-    solve(&mut v, 80);
-    solve(&mut v, 256-80);
+    let result1 = solve(&mut v, 80);
+    let result2 = solve(&mut v, 256-80);
+    (result1, result2)
+}
+
+fn main() {
+    do_solve();
+}
+
+#[test]
+fn test() {
+    let (result1, result2) = do_solve();
+    assert_eq!(result1, 358214);
+    assert_eq!(result2, 1622533344325);
 }
