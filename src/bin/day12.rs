@@ -25,11 +25,17 @@ fn traverse_graph_all_small_caves_once(graph: &HashMap<String, Node>, cur_node: 
     }
 }
 
-fn traverse_graph_one_small_cave_twice(graph: &HashMap<String, Node>, cur_node: &Node, mut path: String, paths: &mut Vec<String>, small_cave_visited: bool) {
+fn traverse_graph_one_small_cave_twice(
+    graph: &HashMap<String, Node>,
+    cur_node: &Node,
+    mut path: String,
+    paths: &mut Vec<String>,
+    small_cave_twice: bool)
+{
     let is_uppercase = cur_node.name.chars().nth(0).unwrap().is_uppercase();
-    let is_start_end = 
-    if is_uppercase || !small_cave_visited || !path.contains(&cur_node.name) {
-        let visited_small_twice = !is_uppercase && path.contains(&cur_node.name);
+    let is_start_end = cur_node.name == "start" || cur_node.name == "end";
+    if is_uppercase || (!small_cave_twice && !is_start_end) || !path.contains(&cur_node.name) {
+        let visited_small_twice = small_cave_twice || (!is_uppercase && !is_start_end && path.contains(&cur_node.name));
         path.push_str(&cur_node.name);
         path.push_str(",");
 
@@ -50,7 +56,7 @@ fn traverse_graph_one_small_cave_twice(graph: &HashMap<String, Node>, cur_node: 
 fn main() {
     let mut graph : HashMap<String, Node> = HashMap::new();
 
-    let lines = include_str!("../../data/day12/test.txt").lines();
+    let lines = include_str!("../../data/day12/input.txt").lines();
     for line in lines {
         let mut nodes = line.split("-");
         let nodeA = String::from(nodes.next().unwrap());
