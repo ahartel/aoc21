@@ -4,6 +4,17 @@ struct Point {
     y: usize
 }
 
+fn print_matrix(matrix: &Vec<Vec<char>>, max_x: usize, max_y: usize) {
+    // print matrix
+    for row in 0..max_y+1 {
+        for col in 0..max_x+1 {
+            print!("{}", matrix[row][col]);
+        }
+        print!("\n");
+    }
+    print!("\n");
+}
+
 fn main() {
     let mut points : Vec<Point> = Vec::new();
     let mut max_x : usize = 0;
@@ -24,31 +35,50 @@ fn main() {
             max_y = y;
         }
     }
-    let mut fold_instruction = lines.next().unwrap().split("=");
-    let is_x_fold = fold_instruction.next().unwrap().contains("x");
-    let fold_col_or_line = fold_instruction.next().unwrap().parse::<usize>().unwrap();
-    println!("{}, {}", is_x_fold, fold_col_or_line);
-    let mut matrix : Vec<Vec<usize>> = vec![vec![0; max_y+1]; max_x+1];
+    let mut matrix : Vec<Vec<char>> = vec![vec!['.'; max_x+1]; max_y+1];
     for point in points {
-        if is_x_fold && point.x > fold_col_or_line {
-            matrix[point.y][fold_col_or_line-(point.x-fold_col_or_line)] += 1;
+        matrix[point.y][point.x] = '#';
+    }
+
+    let mut instruction = lines.next();
+    while instruction != None {
+        let mut fold_instruction = instruction.unwrap().split("=");
+        let is_x_fold = fold_instruction.next().unwrap().contains("x");
+        let fold_col_or_line = fold_instruction.next().unwrap().parse::<usize>().unwrap();
+        println!("Fold instruction: {}, {}", is_x_fold, fold_col_or_line);
+
+        for y in 0..(max_y+1) {
+            for x in 0..(max_x+1) {
+                if is_x_fold && x > fold_col_or_line && matrix[y][x] == '#' {
+                    matrix[y][fold_col_or_line-(x-fold_col_or_line)] = '#';
+                }
+                else {
+                    if !is_x_fold && y > fold_col_or_line && matrix[y][x] == '#' {
+                        matrix[fold_col_or_line-(y-fold_col_or_line)][x] = '#';
+                    }
+                }
+            }
+        }
+
+        // prepare for next iteration
+        instruction = lines.next();
+        if is_x_fold {
+            max_x = fold_col_or_line-1; 
         }
         else {
-            if !is_x_fold && point.y > fold_col_or_line {
-                matrix[fold_col_or_line-(point.y-fold_col_or_line)][point.x] += 1;
-            }
-            else {
-                matrix[point.y][point.x] += 1;
+            max_y = fold_col_or_line-1;
+        }
+
+        // count number of points in matrix
+        let mut total_points_after_fold = 0;
+        for row in 0..(max_y+1) {
+            for col in 0..(max_x+1) {
+                if matrix[row][col] == '#' {
+                    total_points_after_fold += 1;
+                }
             }
         }
+        println!("Number of #'s in the matrix is {}", total_points_after_fold);
     }
-    let mut total_points_after_fold = 0;
-    for row in matrix {
-        for col in row {
-            if col > 0 {
-                total_points_after_fold += 1;
-            }
-        }
-    }
-    println!("{}", total_points_after_fold);
+    print_matrix(&matrix, max_x, max_y);
 }
