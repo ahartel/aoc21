@@ -1,10 +1,8 @@
-use std::vec::Vec;
 use std::fs;
-
+use std::vec::Vec;
 
 pub fn load_data(filename: &str) -> Vec<Vec<u32>> {
-    let contents = fs::read_to_string(filename)
-        .expect("Something went wrong reading the file");
+    let contents = fs::read_to_string(filename).expect("Something went wrong reading the file");
     let entries = contents.split("\n");
     let mut vec = Vec::new();
     const RADIX: u32 = 10;
@@ -16,71 +14,67 @@ pub fn load_data(filename: &str) -> Vec<Vec<u32>> {
     vec
 }
 
-fn find_minima(v : &Vec<Vec<u32>>) -> Vec<(usize, usize, u32)> {
+fn find_minima(v: &Vec<Vec<u32>>) -> Vec<(usize, usize, u32)> {
     let mut minima = Vec::new();
 
     for (y, row) in v.iter().enumerate() {
         for (x, cur) in row.iter().enumerate() {
             if y == 0 {
                 if x == 0 {
-                    if cur < &row[x+1] && cur < &v[y+1][x] {
+                    if cur < &row[x + 1] && cur < &v[y + 1][x] {
+                        minima.push((x, y, cur.clone()));
+                    }
+                } else if x + 1 == row.len() {
+                    if cur < &row[x - 1] && cur < &v[y + 1][x] {
+                        minima.push((x, y, cur.clone()));
+                    }
+                } else {
+                    if cur < &row[x + 1] && cur < &v[y + 1][x] && cur < &row[x - 1] {
                         minima.push((x, y, cur.clone()));
                     }
                 }
-                else if x+1 == row.len() {
-                    if cur < &row[x-1] && cur < &v[y+1][x] {
+            } else if y + 1 == v.len() {
+                if x == 0 {
+                    if cur < &row[x + 1] && cur < &v[y - 1][x] {
+                        minima.push((x, y, cur.clone()));
+                    }
+                } else if x + 1 == row.len() {
+                    if cur < &row[x - 1] && cur < &v[y - 1][x] {
+                        minima.push((x, y, cur.clone()));
+                    }
+                } else {
+                    if cur < &row[x + 1] && cur < &v[y - 1][x] && cur < &row[x - 1] {
                         minima.push((x, y, cur.clone()));
                     }
                 }
-                else {
-                    if cur < &row[x+1] && cur < &v[y+1][x] && cur < &row[x-1] {
+            } else {
+                if x == 0 {
+                    if cur < &row[x + 1] && cur < &v[y - 1][x] && cur < &v[y + 1][x] {
+                        minima.push((x, y, cur.clone()));
+                    }
+                } else if x + 1 == row.len() {
+                    if cur < &row[x - 1] && cur < &v[y - 1][x] && cur < &v[y + 1][x] {
+                        minima.push((x, y, cur.clone()));
+                    }
+                } else {
+                    if cur < &row[x + 1]
+                        && cur < &v[y - 1][x]
+                        && cur < &row[x - 1]
+                        && cur < &v[y + 1][x]
+                    {
                         minima.push((x, y, cur.clone()));
                     }
                 }
             }
-            else if y+1 == v.len() {
-                if x == 0 {
-                    if cur < &row[x+1] && cur < &v[y-1][x] {
-                        minima.push((x, y, cur.clone()));
-                    }
-                }
-                else if x+1 == row.len() {
-                    if cur < &row[x-1] && cur < &v[y-1][x] {
-                        minima.push((x, y, cur.clone()));
-                    }
-                }
-                else {
-                    if cur < &row[x+1] && cur < &v[y-1][x] && cur < &row[x-1] {
-                        minima.push((x, y, cur.clone()));
-                    }
-                }
-            }
-            else {
-                if x == 0 {
-                    if cur < &row[x+1] && cur < &v[y-1][x] && cur < &v[y+1][x] {
-                        minima.push((x, y, cur.clone()));
-                    }
-                }
-                else if x+1 == row.len() {
-                    if cur < &row[x-1] && cur < &v[y-1][x] && cur < &v[y+1][x] {
-                        minima.push((x, y, cur.clone()));
-                    }
-                }
-                else {
-                    if cur < &row[x+1] && cur < &v[y-1][x] && cur < &row[x-1] && cur < &v[y+1][x] {
-                        minima.push((x, y, cur.clone()));
-                    }
-                }
-            } 
         }
     }
     minima
 }
 
-fn solve_part_1(v : &Vec<Vec<u32>>) -> u32 {
+fn solve_part_1(v: &Vec<Vec<u32>>) -> u32 {
     let minima = find_minima(v);
     // println!("{:?}", minima);
-    let result = minima.iter().map(|x| (x.2)+1).sum();
+    let result = minima.iter().map(|x| (x.2) + 1).sum();
     println!("Result part 1: {}", result);
     result
 }
@@ -90,23 +84,23 @@ fn floodfill(x: usize, y: usize, basin_size: &mut usize, v: &mut Vec<Vec<u32>>) 
         *basin_size += 1;
         v[y][x] = 9;
         if y > 0 {
-            floodfill(x, y-1, basin_size, v);
+            floodfill(x, y - 1, basin_size, v);
         }
-        if y < v.len()-1 {
-            floodfill(x, y+1, basin_size, v);
+        if y < v.len() - 1 {
+            floodfill(x, y + 1, basin_size, v);
         }
         if x > 0 {
-            floodfill(x-1, y, basin_size, v);
+            floodfill(x - 1, y, basin_size, v);
         }
-        if x < v[0].len()-1 {
-            floodfill(x+1, y, basin_size, v);
+        if x < v[0].len() - 1 {
+            floodfill(x + 1, y, basin_size, v);
         }
     }
 }
 
-fn solve_part_2(v : &Vec<Vec<u32>>) -> usize {
+fn solve_part_2(v: &Vec<Vec<u32>>) -> usize {
     let minima = find_minima(v);
-    let mut basins : Vec<usize> = Vec::new();
+    let mut basins: Vec<usize> = Vec::new();
     // println!("{:?}", minima);
     for min in &minima {
         let (x, y, _) = min;

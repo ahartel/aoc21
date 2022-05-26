@@ -1,5 +1,3 @@
-
-
 fn explode_one(number: &String) -> (String, bool) {
     // 1. find exploding pair
     let mut depth = 0;
@@ -17,7 +15,7 @@ fn explode_one(number: &String) -> (String, bool) {
                 last_open_idx = str_idx;
                 depth += 1;
                 is_regular_pair = true;
-            },
+            }
             ']' => {
                 if is_regular_pair && depth > 4 && start_of_explode == usize::MAX {
                     start_of_explode = last_open_idx;
@@ -26,29 +24,30 @@ fn explode_one(number: &String) -> (String, bool) {
                 }
                 depth -= 1;
                 is_regular_pair = false;
-            },
+            }
             ',' => {
                 last_comma_idx = str_idx;
             }
             '0'..='9' => {
                 if start_of_explode == usize::MAX && depth <= 4 {
-                    if last_open_idx < usize::MAX && (last_open_idx > last_comma_idx || last_comma_idx == usize::MAX) {
+                    if last_open_idx < usize::MAX
+                        && (last_open_idx > last_comma_idx || last_comma_idx == usize::MAX)
+                    {
                         last_regular_before_explode_idx = (true, last_open_idx + 1);
-                    }
-                    else if last_comma_idx < usize::MAX {
+                    } else if last_comma_idx < usize::MAX {
                         last_regular_before_explode_idx = (false, last_comma_idx + 1);
                     }
-                }
-                else if start_of_explode < usize::MAX && first_regular_after_explode_idx.1 == usize::MAX {
+                } else if start_of_explode < usize::MAX
+                    && first_regular_after_explode_idx.1 == usize::MAX
+                {
                     if last_open_idx > last_comma_idx {
                         first_regular_after_explode_idx = (true, last_open_idx + 1);
-                    }
-                    else {
+                    } else {
                         first_regular_after_explode_idx = (false, last_comma_idx + 1);
                     }
                     break;
                 }
-            },
+            }
             _ => {
                 panic!("Unexpected character {}", c);
             }
@@ -59,54 +58,65 @@ fn explode_one(number: &String) -> (String, bool) {
     let mut res = String::new();
     if start_of_explode < usize::MAX {
         // read exploding pair
-        let left_splinter : usize;
-        let right_splinter : usize;
+        let left_splinter: usize;
+        let right_splinter: usize;
         {
             let comma_idx = number[start_of_explode..].find(',').unwrap() + start_of_explode;
             let closing_idx = number[comma_idx..].find(']').unwrap() + comma_idx;
-            left_splinter = number[start_of_explode+1..comma_idx].parse::<usize>().unwrap();
-            right_splinter = number[comma_idx+1..closing_idx].parse::<usize>().unwrap();
+            left_splinter = number[start_of_explode + 1..comma_idx]
+                .parse::<usize>()
+                .unwrap();
+            right_splinter = number[comma_idx + 1..closing_idx].parse::<usize>().unwrap();
         }
         // parse regular before explosion
-        if last_regular_before_explode_idx.1 < usize::MAX
-        {
+        if last_regular_before_explode_idx.1 < usize::MAX {
             res.push_str(&number[0..last_regular_before_explode_idx.1]);
-            let closing : usize;
+            let closing: usize;
             if last_regular_before_explode_idx.0 {
-                closing = number[last_regular_before_explode_idx.1..].find(',').unwrap() + last_regular_before_explode_idx.1;
+                closing = number[last_regular_before_explode_idx.1..]
+                    .find(',')
+                    .unwrap()
+                    + last_regular_before_explode_idx.1;
+            } else {
+                closing = number[last_regular_before_explode_idx.1..]
+                    .find(']')
+                    .unwrap()
+                    + last_regular_before_explode_idx.1;
             }
-            else {
-                closing = number[last_regular_before_explode_idx.1..].find(']').unwrap() + last_regular_before_explode_idx.1;
-            }
-            let prev_regular = number[last_regular_before_explode_idx.1..closing].parse::<usize>().unwrap();
+            let prev_regular = number[last_regular_before_explode_idx.1..closing]
+                .parse::<usize>()
+                .unwrap();
             res.push_str(&(prev_regular + left_splinter).to_string());
             res.push_str(&number[closing..start_of_explode]);
-        }
-        else {
+        } else {
             res.push_str(&number[0..start_of_explode]);
         }
         res.push('0');
         // parse regular after explosion
-        if first_regular_after_explode_idx.1 < usize::MAX
-        {
-            res.push_str(&number[end_of_explode+1..first_regular_after_explode_idx.1]);
-            let closing : usize;
+        if first_regular_after_explode_idx.1 < usize::MAX {
+            res.push_str(&number[end_of_explode + 1..first_regular_after_explode_idx.1]);
+            let closing: usize;
             if first_regular_after_explode_idx.0 {
-                closing = number[first_regular_after_explode_idx.1..].find(',').unwrap() + first_regular_after_explode_idx.1;
+                closing = number[first_regular_after_explode_idx.1..]
+                    .find(',')
+                    .unwrap()
+                    + first_regular_after_explode_idx.1;
+            } else {
+                closing = number[first_regular_after_explode_idx.1..]
+                    .find(']')
+                    .unwrap()
+                    + first_regular_after_explode_idx.1;
             }
-            else {
-                closing = number[first_regular_after_explode_idx.1..].find(']').unwrap() + first_regular_after_explode_idx.1;
-            }
-            let next_regular = number[first_regular_after_explode_idx.1..closing].parse::<usize>().unwrap();
+            let next_regular = number[first_regular_after_explode_idx.1..closing]
+                .parse::<usize>()
+                .unwrap();
             res.push_str(&(next_regular + right_splinter).to_string());
             res.push_str(&number[closing..]);
-        }
-        else {
-            res.push_str(&number[end_of_explode+1..]);
+        } else {
+            res.push_str(&number[end_of_explode + 1..]);
         }
         (res, true)
-    }
-    else {
+    } else {
         res.push_str(&number);
         (res, false)
     }
@@ -121,10 +131,10 @@ fn split_one(number: &String) -> (String, bool) {
         match c {
             '[' => {
                 last_was_digit = false;
-            },
+            }
             ']' => {
                 last_was_digit = false;
-            },
+            }
             ',' => {
                 last_was_digit = false;
             }
@@ -134,7 +144,7 @@ fn split_one(number: &String) -> (String, bool) {
                     break;
                 }
                 last_was_digit = true;
-            },
+            }
             _ => {
                 panic!("Unexpected character {}", c);
             }
@@ -145,23 +155,26 @@ fn split_one(number: &String) -> (String, bool) {
     let mut res = String::new();
     if split_pos < usize::MAX {
         res.push_str(&number[0..split_pos]);
-        let to_split = number[split_pos..split_pos+2].parse::<usize>().unwrap();
-        let new_left = ((to_split/2) as f64).floor() as usize;
-        let new_right = if to_split%2 == 0 { new_left } else { new_left+1 };
+        let to_split = number[split_pos..split_pos + 2].parse::<usize>().unwrap();
+        let new_left = ((to_split / 2) as f64).floor() as usize;
+        let new_right = if to_split % 2 == 0 {
+            new_left
+        } else {
+            new_left + 1
+        };
         res.push('[');
         res.push_str(&new_left.to_string());
         res.push(',');
         res.push_str(&new_right.to_string());
         res.push(']');
-        res.push_str(&number[split_pos+2..]);
-    }
-    else {
+        res.push_str(&number[split_pos + 2..]);
+    } else {
         res.push_str(&number);
     }
     (res, split_pos < usize::MAX)
 }
 
-fn add(a : &String, b: &String) -> String {
+fn add(a: &String, b: &String) -> String {
     // println!("Adding two numbers:");
     // println!(" a={}", a);
     // println!(" b={}", b);
@@ -188,8 +201,7 @@ fn add(a : &String, b: &String) -> String {
         // println!(" After split:   {}", &split);
         if !did_explode && !did_split {
             break;
-        }
-        else if did_split {
+        } else if did_split {
             res = split;
         }
     }
@@ -205,10 +217,10 @@ fn magnitude(number: &String, idx: &mut usize) -> usize {
         match c {
             '[' => {
                 my_magnitude += 3 * magnitude(number, idx);
-            },
+            }
             ']' => {
                 break;
-            },
+            }
             ',' => {
                 my_magnitude += 2 * magnitude(number, idx);
             }
@@ -217,14 +229,14 @@ fn magnitude(number: &String, idx: &mut usize) -> usize {
                 match peek {
                     '0'..='9' => {
                         *idx += 1;
-                        my_magnitude = number[*idx-2..*idx].parse::<usize>().unwrap();
+                        my_magnitude = number[*idx - 2..*idx].parse::<usize>().unwrap();
                     }
                     _ => {
-                        my_magnitude = number[*idx-1..*idx].parse::<usize>().unwrap();
+                        my_magnitude = number[*idx - 1..*idx].parse::<usize>().unwrap();
                     }
                 }
                 break;
-            },
+            }
             _ => {
                 panic!("Unexpected character {}", c);
             }
@@ -235,7 +247,7 @@ fn magnitude(number: &String, idx: &mut usize) -> usize {
 }
 
 fn main() {
-    let summands : Vec<String> = include_str!("../../data/day18/input.txt")
+    let summands: Vec<String> = include_str!("../../data/day18/input.txt")
         .lines()
         .map(|s| String::from(s))
         .collect();

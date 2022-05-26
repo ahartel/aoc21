@@ -1,14 +1,13 @@
-use std::vec::Vec;
 use aoc21::load_data;
 use std::collections::HashMap;
-
+use std::vec::Vec;
 
 struct Line {
     wires: Vec<String>,
-    digits: Vec<String>
+    digits: Vec<String>,
 }
 
-fn sort_string(unsorted : &str) -> String {
+fn sort_string(unsorted: &str) -> String {
     let s_slice: &str = &unsorted[..];
 
     let mut chars: Vec<char> = s_slice.chars().collect();
@@ -19,15 +18,15 @@ fn sort_string(unsorted : &str) -> String {
 }
 
 impl Line {
-    fn new(s : &str) -> Line {
+    fn new(s: &str) -> Line {
         let mut line = s.split(" | ");
         let wires = line.next().unwrap().split(" ");
         let digits = line.next().unwrap().split(" ");
-        let mut char_sorted_wires : Vec<String> = wires.map(|x| sort_string(x)).collect();
+        let mut char_sorted_wires: Vec<String> = wires.map(|x| sort_string(x)).collect();
         char_sorted_wires.sort_by(|a, b| a.len().cmp(&b.len()));
         Line {
             wires: char_sorted_wires,
-            digits: digits.map(|x| sort_string(x)).collect()
+            digits: digits.map(|x| sort_string(x)).collect(),
         }
     }
 }
@@ -37,14 +36,14 @@ impl Line {
 // 4 letters -> 4
 // 5 letters -> 2, 3, 5
 //   1-pattern in there -> 3
-//   
+//
 // 6 letters -> 0, 6, 9
 //   3-pattern in there -> 9
 //   5-pattern in there -> 6
 //   else -> 0
 // 7 letters -> 8
 
-fn solve_part_1(v : &Vec<Line>) -> usize {
+fn solve_part_1(v: &Vec<Line>) -> usize {
     let mut num_unique_digits = 0;
 
     for line in v {
@@ -54,7 +53,7 @@ fn solve_part_1(v : &Vec<Line>) -> usize {
                 3 => num_unique_digits += 1,
                 4 => num_unique_digits += 1,
                 7 => num_unique_digits += 1,
-                _ => ()
+                _ => (),
             }
         }
     }
@@ -62,7 +61,7 @@ fn solve_part_1(v : &Vec<Line>) -> usize {
     num_unique_digits
 }
 
-fn solve_part_2(v : &Vec<Line>) -> usize {
+fn solve_part_2(v: &Vec<Line>) -> usize {
     let mut grand_total = 0;
 
     let mut digits = HashMap::new();
@@ -88,30 +87,26 @@ fn solve_part_2(v : &Vec<Line>) -> usize {
                     if one.chars().all(|c| w.contains(c)) {
                         digits.insert(w, 3);
                         three = w.clone();
-                    }
-                    else if four_xor_one.chars().all(|c| w.contains(c)) {
+                    } else if four_xor_one.chars().all(|c| w.contains(c)) {
                         digits.insert(w, 5);
                         five = w.clone();
-                    }
-                    else {
+                    } else {
                         digits.insert(w, 2);
                     }
                     None
-                },
+                }
                 6 => {
                     if three.chars().all(|c| w.contains(c)) {
                         digits.insert(w, 9);
-                    }
-                    else if five.chars().all(|c| w.contains(c)) {
+                    } else if five.chars().all(|c| w.contains(c)) {
                         digits.insert(w, 6);
-                    }
-                    else {
+                    } else {
                         digits.insert(w, 0);
                     }
                     None
-                },
+                }
                 7 => digits.insert(w, 8),
-                _ => None
+                _ => None,
             };
         }
         let mut total = 0;

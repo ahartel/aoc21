@@ -1,21 +1,19 @@
-use std::vec::Vec;
 use aoc21::load_data;
+use std::vec::Vec;
 
 struct Depth {
-    depth : u32
+    depth: u32,
 }
 
 impl Depth {
-    fn new(s : &str) -> Depth {
-        let depth : u32 = s.parse().unwrap();
+    fn new(s: &str) -> Depth {
+        let depth: u32 = s.parse().unwrap();
 
-        Depth {
-            depth,
-        }
+        Depth { depth }
     }
 }
 
-fn solve_part_1(vec : &Vec<Depth>) {
+fn solve_part_1(vec: &Vec<Depth>) {
     let mut num_increases = 0;
     let mut last_value = std::u32::MAX;
     for depth in vec {
@@ -27,11 +25,11 @@ fn solve_part_1(vec : &Vec<Depth>) {
     println!("Found {} increasing value pairs.", num_increases);
 }
 
-fn solve_part_2(vec : &Vec<Depth>) {
+fn solve_part_2(vec: &Vec<Depth>) {
     let mut num_increases = 0;
-    let mut a : u32 = 0;
-    let mut b : u32 = 0;
-    let mut c : u32 = 0;
+    let mut a: u32 = 0;
+    let mut b: u32 = 0;
+    let mut c: u32 = 0;
     for idx in 0..vec.len() {
         let cur_depth = vec[idx].depth;
         if idx % 3 == 0 {
@@ -41,8 +39,7 @@ fn solve_part_2(vec : &Vec<Depth>) {
                 num_increases += 1;
             }
             a = cur_depth;
-        }
-        else if idx % 3 == 1 {
+        } else if idx % 3 == 1 {
             a += cur_depth;
             c += cur_depth;
 
@@ -50,8 +47,7 @@ fn solve_part_2(vec : &Vec<Depth>) {
                 num_increases += 1;
             }
             b = cur_depth;
-        }
-        else {
+        } else {
             a += cur_depth;
             b += cur_depth;
             if a > c && idx > 2 {
@@ -60,7 +56,7 @@ fn solve_part_2(vec : &Vec<Depth>) {
             c = cur_depth;
         }
     }
- 
+
     println!("Found {} increasing value pairs.", num_increases);
 }
 
