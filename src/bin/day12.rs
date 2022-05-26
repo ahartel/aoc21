@@ -59,19 +59,19 @@ fn main() {
     let lines = include_str!("../../data/day12/input.txt").lines();
     for line in lines {
         let mut nodes = line.split("-");
-        let nodeA = String::from(nodes.next().unwrap());
-        let nodeB = String::from(nodes.next().unwrap());
-        if !graph.contains_key(&nodeA) {
-            graph.insert(nodeA.clone(), Node{name: nodeA.clone(), children:vec![nodeB.clone(); 1]});
+        let node_a = String::from(nodes.next().unwrap());
+        let node_b = String::from(nodes.next().unwrap());
+        if !graph.contains_key(&node_a) {
+            graph.insert(node_a.clone(), Node{name: node_a.clone(), children:vec![node_b.clone(); 1]});
         }
         else {
-            graph.get_mut(&nodeA).unwrap().children.push(nodeB.clone());
+            graph.get_mut(&node_a).unwrap().children.push(node_b.clone());
         }
-        if !graph.contains_key(&nodeB) {
-            graph.insert(nodeB.clone(), Node{name: nodeB.clone(), children:vec![nodeA; 1]});
+        if !graph.contains_key(&node_b) {
+            graph.insert(node_b.clone(), Node{name: node_b.clone(), children:vec![node_a; 1]});
         }
         else {
-            graph.get_mut(&nodeB).unwrap().children.push(nodeA);
+            graph.get_mut(&node_b).unwrap().children.push(node_a);
         }
     }
 

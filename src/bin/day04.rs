@@ -60,8 +60,8 @@ impl fmt::Display for Board {
         // operation succeeded or failed. Note that `write!` uses syntax which
         // is very similar to `println!`.
         for row in &self.rows {
-            write!(f, "{:?}\n", row.0);
-            write!(f, "{:?}\n", row.1);
+            let _var_name = write!(f, "{:?}\n", row.0);
+            let _var_name = write!(f, "{:?}\n", row.1);
         }
         write!(f, "\n")
     }
@@ -117,7 +117,7 @@ fn solve_part_2(numbers: &String, mut boards: Vec<Board>) {
     for number in numbers.split(",") {
         //println!("{}", number);
         for idx in 0..boards.len() {
-            let mut board = &mut boards[idx];
+            let board = &mut boards[idx];
             if !board.has_complete_row_or_col() {
                 board.mark_number(&number);
                 //println!("{}", board);

@@ -270,8 +270,7 @@ fn main() {
 #[test]
 fn test_day18_explode_one() {
     {
-        let mut line = String::from("[[[[[9,8],1],2],3],4]");
-        let mut did_explode = false;
+        let line = String::from("[[[[[9,8],1],2],3],4]");
         let (line, did_explode) = explode_one(&line);
         assert_eq!(did_explode, true);
         assert_eq!(line, "[[[[0,9],2],3],4]");
@@ -280,8 +279,7 @@ fn test_day18_explode_one() {
         assert_eq!(line, "[[[[0,9],2],3],4]");
     }
     {
-        let mut line = String::from("[[[[1,[9,8]],2],3],4]");
-        let mut did_explode = false;
+        let line = String::from("[[[[1,[9,8]],2],3],4]");
         let (line, did_explode) = explode_one(&line);
         assert_eq!(did_explode, true);
         assert_eq!(line, "[[[[10,0],10],3],4]");
@@ -356,7 +354,6 @@ fn test_day18_split_one() {
             let res = explode_one(&line);
             assert_eq!(res.1, true);
             assert_eq!(res.0, "[[[[0,7],4],[[7,8],[6,0]]],[8,1]]");
-            line = res.0;
         }
     }
 }

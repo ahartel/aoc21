@@ -29,35 +29,35 @@ fn solve_part_1(vec : &Vec<Depth>) {
 
 fn solve_part_2(vec : &Vec<Depth>) {
     let mut num_increases = 0;
-    let mut A : u32 = 0;
-    let mut B : u32 = 0;
-    let mut C : u32 = 0;
+    let mut a : u32 = 0;
+    let mut b : u32 = 0;
+    let mut c : u32 = 0;
     for idx in 0..vec.len() {
         let cur_depth = vec[idx].depth;
         if idx % 3 == 0 {
-            B += cur_depth;
-            C += cur_depth;
-            if B > A && idx > 0 {
+            b += cur_depth;
+            c += cur_depth;
+            if b > a && idx > 0 {
                 num_increases += 1;
             }
-            A = cur_depth;
+            a = cur_depth;
         }
         else if idx % 3 == 1 {
-            A += cur_depth;
-            C += cur_depth;
+            a += cur_depth;
+            c += cur_depth;
 
-            if C > B && idx > 1 {
+            if c > b && idx > 1 {
                 num_increases += 1;
             }
-            B = cur_depth;
+            b = cur_depth;
         }
         else {
-            A += cur_depth;
-            B += cur_depth;
-            if A > C && idx > 2 {
+            a += cur_depth;
+            b += cur_depth;
+            if a > c && idx > 2 {
                 num_increases += 1;
             }
-            C = cur_depth;
+            c = cur_depth;
         }
     }
  

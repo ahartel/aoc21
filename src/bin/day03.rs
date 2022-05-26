@@ -66,9 +66,7 @@ fn my_filter(value: &String, bit_pos: usize, more_ones: bool) -> bool {
 }
 
 fn solve_part_2(vec : &Vec<BinValue>) {
-    let mut o2 = 0;
-    let mut co2 = 0;
-    {
+    let o2 = {
         let mut bit_pos = 0;
         let mut found = vec.len();
         let mut from_vec = vec.clone();
@@ -89,9 +87,10 @@ fn solve_part_2(vec : &Vec<BinValue>) {
             bit_pos += 1;
         }
 
-        o2 = isize::from_str_radix(from_vec[0].value.as_str(), 2).unwrap();
-    }
-    {
+        let o2 = isize::from_str_radix(from_vec[0].value.as_str(), 2).unwrap();
+        o2
+    };
+    let co2 = {
         let mut bit_pos = 0;
         let mut found = vec.len();
         let mut from_vec = vec.clone();
@@ -112,8 +111,9 @@ fn solve_part_2(vec : &Vec<BinValue>) {
             bit_pos += 1;
         }
 
-        co2 = isize::from_str_radix(from_vec[0].value.as_str(), 2).unwrap();
-    }
+        let co2 = isize::from_str_radix(from_vec[0].value.as_str(), 2).unwrap();
+        co2
+    };
     println!("o2: {}, co2: {}, product: {}", o2, co2, o2*co2);
 }
 

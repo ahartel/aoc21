@@ -70,7 +70,6 @@ fn compute_closing_sequence(line: &str, idx: usize, closing: &mut Vec<char>) -> 
         },
         Some(c) => Ok((c, idx)),
         None => Ok(('e', idx)),
-        _ => Err((' ', idx))
     }
 }
 
@@ -132,7 +131,6 @@ fn get_first_illegal_character(line: &str, idx: usize) -> Result<(char, usize), 
         },
         Some(c) => Ok((c, idx)),
         None => Ok(('e', idx)),
-        _ => Err((' ', idx))
     }
 }
 
@@ -140,7 +138,7 @@ fn convert_failing_char_to_score(res: Result<(char, usize), (char, usize)>) -> u
     //println!("{:?}", res);
     match res {
         Ok(_) => 0,
-        Err((c, i)) => {
+        Err((c, _)) => {
             match &c {
                 ')' => 3,
                 ']' => 57,
@@ -178,7 +176,11 @@ fn main() {
 
     let mut scores2 : Vec<usize> = include_str!("../../data/day10/input.txt")
         .lines()
-        .map(|l| { let mut vec = Vec::new(); compute_closing_sequence(l, 0, &mut vec); vec })
+        .map(|l| {
+            let mut vec = Vec::new();
+            let _res = compute_closing_sequence(l, 0, &mut vec);
+            vec
+        })
         .map(|v| convert_sequence_to_score(v))
         .filter(|s| s > &0)
         .collect();

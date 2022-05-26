@@ -144,7 +144,6 @@ fn solve_part_2() {
     let array_size = lines.clone().count() * 5;
 
     let mut graph : Vec<Vec<Node>> = vec![vec![Node{risk:0, pos: (0, 0), children: Vec::new()}; array_size]; array_size];
-    let mut min_risks : Vec<Vec<u32>> = vec![vec![u32::MAX; array_size]; array_size];
 
     let mut y = 0;
     for line in lines {
@@ -200,8 +199,6 @@ fn solve_part_2() {
     // }
     // print!("\n");
 
-    let start_node = &graph[0][0];
-    let start_cost = 0;
     //let mut shortest_path = Vec::new();
     //traverse_graph_min_risk(&graph, &mut min_risks, start_node, start_cost);
     //println!("{}", min_risks[array_size-1][array_size-1]);

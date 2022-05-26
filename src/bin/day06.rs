@@ -8,7 +8,7 @@ fn read_data(v : &mut [usize; 9]) {
 }
 
 fn solve(v : &mut [usize; 9], days: usize) -> usize {
-    for day in 0..days {
+    for _ in 0..days {
         let mut temp_v : [usize; 9] = [0; 9];
         //println!("{:?}", v);
         for idx in 0..v.len() {
@@ -25,10 +25,6 @@ fn solve(v : &mut [usize; 9], days: usize) -> usize {
     let solution = v.iter().sum::<usize>();
     println!("{}", solution);
     solution
-}
-
-fn print_type_of<T>(_: &T) {
-    println!("{}", std::any::type_name::<T>())
 }
 
 fn do_solve() -> (usize, usize) {

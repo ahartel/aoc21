@@ -77,20 +77,10 @@ fn iterate(state: &Vec<Vec<u32>>) -> (usize, Vec<Vec<u32>>) {
     (num_flashes, new_state)
 }
 
-fn printstate (vec: &Vec<Vec<u32>>) {
-    for row in vec {
-        for col in row {
-            print!("{}", col);
-        }
-        print!("\n");
-    }
-    print!("\n");
-}
-
 fn solve_part_1(mut state: Vec<Vec<u32>>) -> usize {
     let mut total_flashes = 0;
-    let mut step_flashes = 0;
-    for i in 0..100 {
+    let mut step_flashes;
+    for _ in 0..100 {
         let res = iterate(&state);
         step_flashes = res.0;
         state = res.1;
@@ -103,7 +93,6 @@ fn solve_part_1(mut state: Vec<Vec<u32>>) -> usize {
 }
 
 fn solve_part_2(mut state: Vec<Vec<u32>>) -> usize {
-    let mut total_flashes = 0;
     let mut step_flashes = 0;
     let mut num_steps = 0;
     while step_flashes < 100 {
@@ -111,7 +100,6 @@ fn solve_part_2(mut state: Vec<Vec<u32>>) -> usize {
         let res = iterate(&state);
         step_flashes = res.0;
         state = res.1;
-        total_flashes += step_flashes;
         //println!("Run {}: {} flashes", i, step_flashes);
         //printstate(&initial_state);
     }
@@ -123,7 +111,7 @@ fn solve_part_2(mut state: Vec<Vec<u32>>) -> usize {
 fn main() {
     const RADIX: u32 = 10;
 
-    let mut initial_state : Vec<Vec<u32>> = include_str!("../../data/day11/input.txt")
+    let initial_state : Vec<Vec<u32>> = include_str!("../../data/day11/input.txt")
         .lines()
         .map(|l| l.chars().map(|c| c.to_digit(RADIX).unwrap()).collect())
         .collect();
@@ -136,7 +124,7 @@ fn main() {
 fn test_day11_01() {
     const RADIX: u32 = 10;
 
-    let mut initial_state : Vec<Vec<u32>> = include_str!("../../data/day11/input.txt")
+    let initial_state : Vec<Vec<u32>> = include_str!("../../data/day11/input.txt")
         .lines()
         .map(|l| l.chars().map(|c| c.to_digit(RADIX).unwrap()).collect())
         .collect();
