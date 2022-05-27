@@ -275,23 +275,21 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
-    fn first_test_with_2D_coordinates() {
+    fn first_test_with_2_d_coordinates() {
         let positions_a = vec![
-            Position::new(0, 0),
-            Position::new(2, 0),
-            Position::new(5, 0),
+            Position::new(0, 2),
+            Position::new(4, 1),
+            Position::new(3, 3),
         ];
         let positions_b = vec![
-            Position::new(8, 0),
-            Position::new(9, 0),
-            Position::new(22, 0),
-            Position::new(25, 0),
+            Position::new(-1, -1),
+            Position::new(-5, 0),
+            Position::new(-2, 1),
         ];
         let scanner_a = Scanner::new(positions_a.into_iter());
         let scanner_b = Scanner::new(positions_b.into_iter());
         let distance = overlap(scanner_a, scanner_b, 2);
         assert!(distance.is_some());
-        assert_eq!(distance.unwrap().x, -20);
+        assert_eq!(distance.unwrap(), Position{x: 5, y: 2});
     }
 }
