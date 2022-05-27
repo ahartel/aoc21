@@ -126,14 +126,26 @@ fn overlap(scanner_a: Scanner, scanner_b: Scanner, min_overlap: usize) -> Option
             distances[idx_a][idx_b] = a.distance(b);
         }
     }
-    for row in &distances {
+    for row in distances.iter() {
         println!("{:?}", row);
-        for check_distance in row {
-            if row.iter().filter(|&item| item == check_distance)
-                .count() >= min_overlap
-            {
-                return Some(
-                    check_distance.clone());
+    }
+
+    for (row_idx, check_row) in distances.iter().enumerate() {
+        for (idx, check_distance) in check_row.iter().enumerate() {
+            let mut num_found = 1;
+            for row in &distances[(row_idx + 1)..] {
+                for col in (idx + 1)..row.len() {
+                    if row[col] == *check_distance {
+                        num_found += 1;
+                        break;
+                    }
+                }
+                if num_found >= min_overlap {
+                    return Some(check_distance.clone());
+                }
+            }
+            if num_found >= min_overlap {
+                return Some(check_distance.clone());
             }
         }
     }
@@ -210,7 +222,7 @@ mod tests {
     #[test]
     fn three_beacon_scanners_overlap_in_two_with_offset() {
         let positions_a = vec![Position::new(0), Position::new(1), Position::new(3)];
-        let positions_b = vec![Position::new(9), Position::new(11), Position::new(13)];
+        let positions_b = vec![Position::new(7), Position::new(11), Position::new(13)];
         let scanner_a = Scanner::new(positions_a.into_iter());
         let scanner_b = Scanner::new(positions_b.into_iter());
         let relative_pos = overlap(scanner_a, scanner_b, 2);
@@ -221,7 +233,12 @@ mod tests {
     #[test]
     fn three_beacon_scanners_overlap_in_two_with_more_offset() {
         let positions_a = vec![Position::new(0), Position::new(2), Position::new(5)];
-        let positions_b = vec![Position::new(8), Position::new(9), Position::new(22), Position::new(25)];
+        let positions_b = vec![
+            Position::new(8),
+            Position::new(9),
+            Position::new(22),
+            Position::new(25),
+        ];
         let scanner_a = Scanner::new(positions_a.into_iter());
         let scanner_b = Scanner::new(positions_b.into_iter());
         let relative_pos = overlap(scanner_a, scanner_b, 2);
