@@ -108,16 +108,16 @@ impl Scanner {
 
 fn rotate(rotation: u8, pos: &Position) -> Position {
     let (new_x, new_y, new_z) = match rotation {
-         0 => (pos.x, pos.y, pos.z),
-         1 => (pos.x, -pos.z, pos.y),
-         2 => (pos.x, -pos.y, -pos.z),
-         3 => (pos.x, pos.z, -pos.y),
-         4 => (-pos.x, -pos.y, pos.z),
-         5 => (-pos.x, -pos.z, -pos.y),
-         6 => (-pos.x, pos.y, -pos.z),
-         7 => (-pos.x, pos.z, pos.y),
-         8 => (-pos.y, pos.x, pos.z),
-         9 => (pos.z, pos.x, pos.y),
+        0 => (pos.x, pos.y, pos.z),
+        1 => (pos.x, -pos.z, pos.y),
+        2 => (pos.x, -pos.y, -pos.z),
+        3 => (pos.x, pos.z, -pos.y),
+        4 => (-pos.x, -pos.y, pos.z),
+        5 => (-pos.x, -pos.z, -pos.y),
+        6 => (-pos.x, pos.y, -pos.z),
+        7 => (-pos.x, pos.z, pos.y),
+        8 => (-pos.y, pos.x, pos.z),
+        9 => (pos.z, pos.x, pos.y),
         10 => (pos.y, pos.x, -pos.z),
         11 => (-pos.z, pos.x, -pos.y),
         12 => (-pos.y, -pos.x, pos.z),
@@ -134,7 +134,11 @@ fn rotate(rotation: u8, pos: &Position) -> Position {
         23 => (-pos.z, -pos.y, -pos.x),
         _ => panic!("Unexpected rotation"),
     };
-    Position { x: new_x, y: new_y, z: new_z }
+    Position {
+        x: new_x,
+        y: new_y,
+        z: new_z,
+    }
 }
 
 fn overlap(scanner_a: Scanner, scanner_b: Scanner, min_overlap: usize) -> Option<Position> {
@@ -326,20 +330,20 @@ mod tests {
     #[test]
     fn rotation_test_from_aoc_description() {
         let positions_a = vec![
-            Position::new(-1,-1,1),
-            Position::new(-2,-2,2),
-            Position::new(-3,-3,3),
-            Position::new(-2,-3,1),
-            Position::new(5,6,-4),
-            Position::new(8,0,7),
+            Position::new(-1, -1, 1),
+            Position::new(-2, -2, 2),
+            Position::new(-3, -3, 3),
+            Position::new(-2, -3, 1),
+            Position::new(5, 6, -4),
+            Position::new(8, 0, 7),
         ];
         let positions_b = vec![
-            Position::new(1,-1,1),
-            Position::new(2,-2,2),
-            Position::new(3,-3,3),
-            Position::new(2,-1,3),
-            Position::new(-5,4,-6),
-            Position::new(-8,-7,0),
+            Position::new(1, -1, 1),
+            Position::new(2, -2, 2),
+            Position::new(3, -3, 3),
+            Position::new(2, -1, 3),
+            Position::new(-5, 4, -6),
+            Position::new(-8, -7, 0),
         ];
         let scanner_a = Scanner::new(positions_a.into_iter());
         let scanner_b = Scanner::new(positions_b.into_iter());
@@ -351,63 +355,70 @@ mod tests {
     #[test]
     fn first_test_with_3_d_coordinates() {
         let positions_a = vec![
-            Position::new(404,-588,-901),
-            Position::new(528,-643,409),
-            Position::new(-838,591,734),
-            Position::new(390,-675,-793),
-            Position::new(-537,-823,-458),
-            Position::new(-485,-357,347),
-            Position::new(-345,-311,381),
-            Position::new(-661,-816,-575),
-            Position::new(-876,649,763),
-            Position::new(-618,-824,-621),
-            Position::new(553,345,-567),
-            Position::new(474,580,667),
-            Position::new(-447,-329,318),
-            Position::new(-584,868,-557),
-            Position::new(544,-627,-890),
-            Position::new(564,392,-477),
-            Position::new(455,729,728),
-            Position::new(-892,524,684),
-            Position::new(-689,845,-530),
-            Position::new(423,-701,434),
-            Position::new(7,-33,-71),
-            Position::new(630,319,-379),
-            Position::new(443,580,662),
-            Position::new(-789,900,-551),
-            Position::new(459,-707,401),
+            Position::new(404, -588, -901),
+            Position::new(528, -643, 409),
+            Position::new(-838, 591, 734),
+            Position::new(390, -675, -793),
+            Position::new(-537, -823, -458),
+            Position::new(-485, -357, 347),
+            Position::new(-345, -311, 381),
+            Position::new(-661, -816, -575),
+            Position::new(-876, 649, 763),
+            Position::new(-618, -824, -621),
+            Position::new(553, 345, -567),
+            Position::new(474, 580, 667),
+            Position::new(-447, -329, 318),
+            Position::new(-584, 868, -557),
+            Position::new(544, -627, -890),
+            Position::new(564, 392, -477),
+            Position::new(455, 729, 728),
+            Position::new(-892, 524, 684),
+            Position::new(-689, 845, -530),
+            Position::new(423, -701, 434),
+            Position::new(7, -33, -71),
+            Position::new(630, 319, -379),
+            Position::new(443, 580, 662),
+            Position::new(-789, 900, -551),
+            Position::new(459, -707, 401),
         ];
         let positions_b = vec![
-            Position::new(686,422,578),
-            Position::new(605,423,415),
-            Position::new(515,917,-361),
-            Position::new(-336,658,858),
-            Position::new(95,138,22),
-            Position::new(-476,619,847),
-            Position::new(-340,-569,-846),
-            Position::new(567,-361,727),
-            Position::new(-460,603,-452),
-            Position::new(669,-402,600),
-            Position::new(729,430,532),
-            Position::new(-500,-761,534),
-            Position::new(-322,571,750),
-            Position::new(-466,-666,-811),
-            Position::new(-429,-592,574),
-            Position::new(-355,545,-477),
-            Position::new(703,-491,-529),
-            Position::new(-328,-685,520),
-            Position::new(413,935,-424),
-            Position::new(-391,539,-444),
-            Position::new(586,-435,557),
-            Position::new(-364,-763,-893),
-            Position::new(807,-499,-711),
-            Position::new(755,-354,-619),
-            Position::new(553,889,-390),
+            Position::new(686, 422, 578),
+            Position::new(605, 423, 415),
+            Position::new(515, 917, -361),
+            Position::new(-336, 658, 858),
+            Position::new(95, 138, 22),
+            Position::new(-476, 619, 847),
+            Position::new(-340, -569, -846),
+            Position::new(567, -361, 727),
+            Position::new(-460, 603, -452),
+            Position::new(669, -402, 600),
+            Position::new(729, 430, 532),
+            Position::new(-500, -761, 534),
+            Position::new(-322, 571, 750),
+            Position::new(-466, -666, -811),
+            Position::new(-429, -592, 574),
+            Position::new(-355, 545, -477),
+            Position::new(703, -491, -529),
+            Position::new(-328, -685, 520),
+            Position::new(413, 935, -424),
+            Position::new(-391, 539, -444),
+            Position::new(586, -435, 557),
+            Position::new(-364, -763, -893),
+            Position::new(807, -499, -711),
+            Position::new(755, -354, -619),
+            Position::new(553, 889, -390),
         ];
         let scanner_a = Scanner::new(positions_a.into_iter());
         let scanner_b = Scanner::new(positions_b.into_iter());
         let distance = overlap(scanner_a, scanner_b, 12);
         assert!(distance.is_some());
-        assert_eq!(distance.unwrap(), Position { x: 68, y: -1246, z: -435 });
+        assert_eq!(
+            distance.unwrap(),
+            Position {
+                x: 68,
+                y: -1246,
+                z: -435
+            }
+        );
     }
 }
