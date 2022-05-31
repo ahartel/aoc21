@@ -26,12 +26,6 @@ impl Position {
         Position { x, y, z }
     }
 
-    pub fn distance(&self, other: &Position) -> f32 {
-        let squares: f32 = (self.x - other.x) as f32 * (self.x - other.x) as f32
-            + (self.y - other.y) as f32 * (self.y - other.y) as f32;
-        squares.sqrt()
-    }
-
     pub fn minus(&self, other: &Position) -> Position {
         Position {
             x: self.x - other.x,
@@ -54,7 +48,7 @@ impl Scanner {
     pub fn push(&mut self, pos: Position) {
         self.beacons.push(pos);
     }
-    pub fn extend_from_iter(&mut self, iter: impl Iterator<Item=Position>) {
+    pub fn extend_from_iter(&mut self, iter: impl Iterator<Item = Position>) {
         for item in iter {
             self.beacons.push(item);
         }
@@ -122,7 +116,7 @@ fn overlap(scanner_a: &Scanner, scanner_b: &Scanner, min_overlap: usize) -> Opti
         // }
 
         for (row_idx, check_row) in distances.iter().enumerate() {
-            for (idx, check_distance) in check_row.iter().enumerate() {
+            for check_distance in check_row.iter() {
                 let mut num_found = 1;
                 for row in &distances[(row_idx + 1)..] {
                     for col in 0..row.len() {
@@ -195,8 +189,6 @@ fn main() {
 
     // println!("Found {} beacons.", beacon_list.len());
 }
-
-
 
 #[cfg(test)]
 mod tests {
@@ -393,20 +385,20 @@ mod tests {
     #[test]
     fn rotation_test_from_aoc_description_2() {
         let positions_a = vec![
-            Position::new(1,-1,1),
-            Position::new(2,-2,2),
-            Position::new(3,-3,3),
-            Position::new(2,-1,3),
-            Position::new(-5,4,-6),
-            Position::new(-8,-7,0),
+            Position::new(1, -1, 1),
+            Position::new(2, -2, 2),
+            Position::new(3, -3, 3),
+            Position::new(2, -1, 3),
+            Position::new(-5, 4, -6),
+            Position::new(-8, -7, 0),
         ];
         let positions_b = vec![
-            Position::new(-1,-1,-1),
-            Position::new(-2,-2,-2),
-            Position::new(-3,-3,-3),
-            Position::new(-1,-3,-2),
-            Position::new(4,6,5),
-            Position::new(-7,0,8),
+            Position::new(-1, -1, -1),
+            Position::new(-2, -2, -2),
+            Position::new(-3, -3, -3),
+            Position::new(-1, -3, -2),
+            Position::new(4, 6, 5),
+            Position::new(-7, 0, 8),
         ];
         let mut scanner_a = Scanner::new();
         scanner_a.extend_from_iter(positions_a.into_iter());
@@ -420,20 +412,20 @@ mod tests {
     #[test]
     fn rotation_test_from_aoc_description_3() {
         let positions_a = vec![
-            Position::new(-1,-1,-1),
-            Position::new(-2,-2,-2),
-            Position::new(-3,-3,-3),
-            Position::new(-1,-3,-2),
-            Position::new(4,6,5),
-            Position::new(-7,0,8),
+            Position::new(-1, -1, -1),
+            Position::new(-2, -2, -2),
+            Position::new(-3, -3, -3),
+            Position::new(-1, -3, -2),
+            Position::new(4, 6, 5),
+            Position::new(-7, 0, 8),
         ];
         let positions_b = vec![
-            Position::new(1,1,-1),
-            Position::new(2,2,-2),
-            Position::new(3,3,-3),
-            Position::new(1,3,-2),
-            Position::new(-4,-6,5),
-            Position::new(7,0,8),
+            Position::new(1, 1, -1),
+            Position::new(2, 2, -2),
+            Position::new(3, 3, -3),
+            Position::new(1, 3, -2),
+            Position::new(-4, -6, 5),
+            Position::new(7, 0, 8),
         ];
         let mut scanner_a = Scanner::new();
         scanner_a.extend_from_iter(positions_a.into_iter());
@@ -447,20 +439,20 @@ mod tests {
     #[test]
     fn rotation_test_from_aoc_description_4() {
         let positions_a = vec![
-            Position::new(1,1,-1),
-            Position::new(2,2,-2),
-            Position::new(3,3,-3),
-            Position::new(1,3,-2),
-            Position::new(-4,-6,5),
-            Position::new(7,0,8),
+            Position::new(1, 1, -1),
+            Position::new(2, 2, -2),
+            Position::new(3, 3, -3),
+            Position::new(1, 3, -2),
+            Position::new(-4, -6, 5),
+            Position::new(7, 0, 8),
         ];
         let positions_b = vec![
-            Position::new(1,1,1),
-            Position::new(2,2,2),
-            Position::new(3,3,3),
-            Position::new(3,1,2),
-            Position::new(-6,-4,-5),
-            Position::new(0,7,-8),
+            Position::new(1, 1, 1),
+            Position::new(2, 2, 2),
+            Position::new(3, 3, 3),
+            Position::new(3, 1, 2),
+            Position::new(-6, -4, -5),
+            Position::new(0, 7, -8),
         ];
         let mut scanner_a = Scanner::new();
         scanner_a.extend_from_iter(positions_a.into_iter());
