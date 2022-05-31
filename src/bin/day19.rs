@@ -33,6 +33,14 @@ impl Position {
             z: self.z - other.z,
         }
     }
+
+    pub fn plus(&self, other: &Position) -> Position {
+        Position {
+            x: self.x + other.x,
+            y: self.y + other.y,
+            z: self.z + other.z,
+        }
+    }
 }
 
 struct Scanner {
@@ -48,10 +56,26 @@ impl Scanner {
     pub fn push(&mut self, pos: Position) {
         self.beacons.push(pos);
     }
-    pub fn extend_from_iter(&mut self, iter: impl Iterator<Item = Position>) {
+    pub fn extend_from_iter(
+        &mut self,
+        iter: impl Iterator<Item = Position>,
+        distance: &Position,
+        rotation: u8,
+    ) {
+        for item in iter {
+            self.beacons.push(rotate(rotation, &item).plus(distance));
+        }
+    }
+    pub fn consume_iter(
+        &mut self,
+        iter: impl Iterator<Item = Position>,
+    ) {
         for item in iter {
             self.beacons.push(item);
         }
+    }
+    pub fn into_iter(self) -> impl Iterator<Item = Position> {
+        self.beacons.into_iter()
     }
     pub fn len(&self) -> usize {
         self.beacons.len()
@@ -101,7 +125,7 @@ fn rotate(rotation: u8, pos: &Position) -> Position {
     }
 }
 
-fn overlap(scanner_a: &Scanner, scanner_b: &Scanner, min_overlap: usize) -> Option<Position> {
+fn overlap(scanner_a: &Scanner, scanner_b: &Scanner, min_overlap: usize) -> Option<(Position, u8)> {
     for rotation in 0..24 {
         let mut distances = vec![vec![Position::new(0, 0, 0); scanner_b.len()]; scanner_a.len()];
         for (idx_a, a) in scanner_a.iter().enumerate() {
@@ -126,13 +150,11 @@ fn overlap(scanner_a: &Scanner, scanner_b: &Scanner, min_overlap: usize) -> Opti
                         }
                     }
                     if num_found >= min_overlap {
-                        println!("Found some for rotation {}", rotation);
-                        return Some(*check_distance);
+                        return Some((*check_distance, rotation));
                     }
                 }
                 if num_found >= min_overlap {
-                    println!("Found some for rotation {}", rotation);
-                    return Some(*check_distance);
+                    return Some((*check_distance, rotation));
                 }
             }
         }
@@ -142,8 +164,6 @@ fn overlap(scanner_a: &Scanner, scanner_b: &Scanner, min_overlap: usize) -> Opti
 
 fn main() {
     let mut scanners: Vec<Scanner> = Vec::new();
-    // let's start with a simple vec. Optimize later if necessary
-    //let mut beacon_list: Vec<(i32, i32, i32)> = Vec::new();
 
     let lines: Vec<&str> = include_str!("../../data/day19/test.txt").lines().collect();
     for line in lines {
@@ -152,9 +172,35 @@ fn main() {
 
     println!("Found {} scanners.", scanners.len());
 
-    let result = overlap(&scanners[0], &scanners[1], 12);
+    while scanners.len() > 1 {
+        let mut found_idx = 0;
+        let mut result = None;
+        for (idx, scanner) in scanners[1..].iter().enumerate() {
+            result = overlap(&scanners[0], scanner, 12);
+            if let Some(_) = result {
+                found_idx = idx;
+                break;
+            }
+        }
+        if let Some((distance, rotation)) = result {
+            println!(
+                "Distance between scanner 0 and scanner {} at rotation {}: {:?}",
+                found_idx + 1,
+                rotation,
+                distance
+            );
+            let found_scanner = scanners.remove(found_idx);
+            scanners.get_mut(0).unwrap().extend_from_iter(
+                found_scanner.into_iter(),
+                &distance,
+                rotation,
+            );
+        } else {
+            break;
+        }
+    }
 
-    println!("Result {:?}", result.unwrap());
+    println!("Total number of beacons: {}", scanners[0].len())
 
     // // extract scanner 0's beacons as the initial set
     // for beacon in &scanners[0] {
@@ -205,23 +251,23 @@ mod tests {
     #[test]
     fn single_beacon_scanners_overlap_trivially() {
         let mut scanner_a = Scanner::new();
-        scanner_a.extend_from_iter(std::iter::once(Position::new(0, 0, 0)));
+        scanner_a.consume_iter(std::iter::once(Position::new(0, 0, 0)));
         let mut scanner_b = Scanner::new();
-        scanner_b.extend_from_iter(std::iter::once(Position::new(0, 0, 0)));
+        scanner_b.consume_iter(std::iter::once(Position::new(0, 0, 0)));
         let distance = overlap(&scanner_a, &scanner_b, 1);
         assert!(distance.is_some());
-        assert_eq!(distance.unwrap().x, 0);
+        assert_eq!(distance.unwrap().0.x, 0);
     }
 
     #[test]
     fn single_beacon_scanners_overlap_non_trivially() {
         let mut scanner_a = Scanner::new();
-        scanner_a.extend_from_iter(std::iter::once(Position::new(1, 0, 0)));
+        scanner_a.consume_iter(std::iter::once(Position::new(1, 0, 0)));
         let mut scanner_b = Scanner::new();
-        scanner_b.extend_from_iter(std::iter::once(Position::new(0, 0, 0)));
+        scanner_b.consume_iter(std::iter::once(Position::new(0, 0, 0)));
         let distance = overlap(&scanner_a, &scanner_b, 1);
         assert!(distance.is_some());
-        assert_eq!(distance.unwrap().x, 1);
+        assert_eq!(distance.unwrap().0.x, 1);
     }
 
     #[test]
@@ -229,9 +275,9 @@ mod tests {
         let positions_a = vec![Position::new(0, 0, 0), Position::new(1, 0, 0)];
         let positions_b = vec![Position::new(0, 0, 0), Position::new(2, 0, 0)];
         let mut scanner_a = Scanner::new();
-        scanner_a.extend_from_iter(positions_a.into_iter());
+        scanner_a.consume_iter(positions_a.into_iter());
         let mut scanner_b = Scanner::new();
-        scanner_b.extend_from_iter(positions_b.into_iter());
+        scanner_b.consume_iter(positions_b.into_iter());
         let distance = overlap(&scanner_a, &scanner_b, 2);
         assert!(distance.is_none());
     }
@@ -241,12 +287,12 @@ mod tests {
         let positions_a = vec![Position::new(0, 0, 0), Position::new(1, 0, 0)];
         let positions_b = vec![Position::new(1, 0, 0), Position::new(2, 0, 0)];
         let mut scanner_a = Scanner::new();
-        scanner_a.extend_from_iter(positions_a.into_iter());
+        scanner_a.consume_iter(positions_a.into_iter());
         let mut scanner_b = Scanner::new();
-        scanner_b.extend_from_iter(positions_b.into_iter());
+        scanner_b.consume_iter(positions_b.into_iter());
         let distance = overlap(&scanner_a, &scanner_b, 2);
         assert!(distance.is_some());
-        assert_eq!(distance.unwrap().x, -1);
+        assert_eq!(distance.unwrap().0.x, -1);
     }
 
     #[test]
@@ -262,12 +308,12 @@ mod tests {
             Position::new(13, 0, 0),
         ];
         let mut scanner_a = Scanner::new();
-        scanner_a.extend_from_iter(positions_a.into_iter());
+        scanner_a.consume_iter(positions_a.into_iter());
         let mut scanner_b = Scanner::new();
-        scanner_b.extend_from_iter(positions_b.into_iter());
+        scanner_b.consume_iter(positions_b.into_iter());
         let distance = overlap(&scanner_a, &scanner_b, 2);
         assert!(distance.is_some());
-        assert_eq!(distance.unwrap().x, -10);
+        assert_eq!(distance.unwrap().0.x, -10);
     }
 
     #[test]
@@ -283,12 +329,12 @@ mod tests {
             Position::new(13, 0, 0),
         ];
         let mut scanner_a = Scanner::new();
-        scanner_a.extend_from_iter(positions_a.into_iter());
+        scanner_a.consume_iter(positions_a.into_iter());
         let mut scanner_b = Scanner::new();
-        scanner_b.extend_from_iter(positions_b.into_iter());
+        scanner_b.consume_iter(positions_b.into_iter());
         let distance = overlap(&scanner_a, &scanner_b, 2);
         assert!(distance.is_some());
-        assert_eq!(distance.unwrap().x, -10);
+        assert_eq!(distance.unwrap().0.x, -10);
     }
 
     #[test]
@@ -305,12 +351,12 @@ mod tests {
             Position::new(25, 0, 0),
         ];
         let mut scanner_a = Scanner::new();
-        scanner_a.extend_from_iter(positions_a.into_iter());
+        scanner_a.consume_iter(positions_a.into_iter());
         let mut scanner_b = Scanner::new();
-        scanner_b.extend_from_iter(positions_b.into_iter());
+        scanner_b.consume_iter(positions_b.into_iter());
         let distance = overlap(&scanner_a, &scanner_b, 2);
         assert!(distance.is_some());
-        assert_eq!(distance.unwrap().x, -20);
+        assert_eq!(distance.unwrap().0.x, -20);
     }
 
     #[test]
@@ -326,12 +372,12 @@ mod tests {
             Position::new(-2, 1, 0),
         ];
         let mut scanner_a = Scanner::new();
-        scanner_a.extend_from_iter(positions_a.into_iter());
+        scanner_a.consume_iter(positions_a.into_iter());
         let mut scanner_b = Scanner::new();
-        scanner_b.extend_from_iter(positions_b.into_iter());
+        scanner_b.consume_iter(positions_b.into_iter());
         let distance = overlap(&scanner_a, &scanner_b, 2);
         assert!(distance.is_some());
-        assert_eq!(distance.unwrap(), Position { x: 5, y: 2, z: 0 });
+        assert_eq!(distance.unwrap().0, Position { x: 5, y: 2, z: 0 });
     }
 
     #[test]
@@ -347,12 +393,12 @@ mod tests {
             Position::new(0, -5, 0),
         ];
         let mut scanner_a = Scanner::new();
-        scanner_a.extend_from_iter(positions_a.into_iter());
+        scanner_a.consume_iter(positions_a.into_iter());
         let mut scanner_b = Scanner::new();
-        scanner_b.extend_from_iter(positions_b.into_iter());
+        scanner_b.consume_iter(positions_b.into_iter());
         let distance = overlap(&scanner_a, &scanner_b, 3);
         assert!(distance.is_some());
-        assert_eq!(distance.unwrap(), Position { x: -2, y: 0, z: 0 });
+        assert_eq!(distance.unwrap().0, Position { x: -2, y: 0, z: 0 });
     }
 
     #[test]
@@ -374,12 +420,12 @@ mod tests {
             Position::new(-8, -7, 0),
         ];
         let mut scanner_a = Scanner::new();
-        scanner_a.extend_from_iter(positions_a.into_iter());
+        scanner_a.consume_iter(positions_a.into_iter());
         let mut scanner_b = Scanner::new();
-        scanner_b.extend_from_iter(positions_b.into_iter());
+        scanner_b.consume_iter(positions_b.into_iter());
         let distance = overlap(&scanner_a, &scanner_b, 6);
         assert!(distance.is_some());
-        assert_eq!(distance.unwrap(), Position { x: 0, y: 0, z: 0 });
+        assert_eq!(distance.unwrap().0, Position { x: 0, y: 0, z: 0 });
     }
 
     #[test]
@@ -401,12 +447,12 @@ mod tests {
             Position::new(-7, 0, 8),
         ];
         let mut scanner_a = Scanner::new();
-        scanner_a.extend_from_iter(positions_a.into_iter());
+        scanner_a.consume_iter(positions_a.into_iter());
         let mut scanner_b = Scanner::new();
-        scanner_b.extend_from_iter(positions_b.into_iter());
+        scanner_b.consume_iter(positions_b.into_iter());
         let distance = overlap(&scanner_a, &scanner_b, 6);
         assert!(distance.is_some());
-        assert_eq!(distance.unwrap(), Position { x: 0, y: 0, z: 0 });
+        assert_eq!(distance.unwrap().0, Position { x: 0, y: 0, z: 0 });
     }
 
     #[test]
@@ -428,12 +474,12 @@ mod tests {
             Position::new(7, 0, 8),
         ];
         let mut scanner_a = Scanner::new();
-        scanner_a.extend_from_iter(positions_a.into_iter());
+        scanner_a.consume_iter(positions_a.into_iter());
         let mut scanner_b = Scanner::new();
-        scanner_b.extend_from_iter(positions_b.into_iter());
+        scanner_b.consume_iter(positions_b.into_iter());
         let distance = overlap(&scanner_a, &scanner_b, 6);
         assert!(distance.is_some());
-        assert_eq!(distance.unwrap(), Position { x: 0, y: 0, z: 0 });
+        assert_eq!(distance.unwrap().0, Position { x: 0, y: 0, z: 0 });
     }
 
     #[test]
@@ -455,12 +501,12 @@ mod tests {
             Position::new(0, 7, -8),
         ];
         let mut scanner_a = Scanner::new();
-        scanner_a.extend_from_iter(positions_a.into_iter());
+        scanner_a.consume_iter(positions_a.into_iter());
         let mut scanner_b = Scanner::new();
-        scanner_b.extend_from_iter(positions_b.into_iter());
+        scanner_b.consume_iter(positions_b.into_iter());
         let distance = overlap(&scanner_a, &scanner_b, 6);
         assert!(distance.is_some());
-        assert_eq!(distance.unwrap(), Position { x: 0, y: 0, z: 0 });
+        assert_eq!(distance.unwrap().0, Position { x: 0, y: 0, z: 0 });
     }
 
     #[test]
@@ -520,13 +566,13 @@ mod tests {
             Position::new(553, 889, -390),
         ];
         let mut scanner_a = Scanner::new();
-        scanner_a.extend_from_iter(positions_a.into_iter());
+        scanner_a.consume_iter(positions_a.into_iter());
         let mut scanner_b = Scanner::new();
-        scanner_b.extend_from_iter(positions_b.into_iter());
+        scanner_b.consume_iter(positions_b.into_iter());
         let distance = overlap(&scanner_a, &scanner_b, 12);
         assert!(distance.is_some());
         assert_eq!(
-            distance.unwrap(),
+            distance.unwrap().0,
             Position {
                 x: 68,
                 y: -1246,
